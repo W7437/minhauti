@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>IAM — Suporte Básico à Decisão</title>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;background:#f3f5f7;margin:0;color:#17202a}
+  .wrap{max-width:1050px;margin:24px auto;padding:0 16px}
+  h1{margin-bottom:6px}
+  .sub{color:#5d6d7e;margin-top:0}
+  .card{background:#fff;border-radius:12px;padding:18px;margin:14px 0;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+  label{font-weight:700;font-size:14px;display:block;margin-bottom:5px}
+  input,select{width:100%;box-sizing:border-box;padding:9px;border:1px solid #ccd1d1;border-radius:7px}
+  .check{display:flex;gap:8px;align-items:center;margin:7px 0}
+  .check input{width:auto}
+  button{background:#1f618d;color:white;border:0;padding:12px 18px;border-radius:8px;font-weight:700;cursor:pointer}
+  button:hover{background:#154360}
+  .result{border-left:5px solid #1f618d;padding:12px 14px;margin:10px 0;background:#f8fbfd}
+  .warn{border-left-color:#d68910;background:#fff8e8}
+  .danger{border-left-color:#c0392b;background:#fdecea}
+  .ok{border-left-color:#239b56;background:#ebf7ee}
+  .muted{color:#707b7c;font-size:13px}
+  ul{margin-top:6px}
+  .footer{font-size:12px;color:#626567;margin:20px 0 40px}
+</style>
+<style>
+/* Navegação global MinhaUTI */
+:root{--module-nav-width:172px;--module-nav-gap:12px}
+body.with-global-module-nav{padding-right:calc(var(--module-nav-width) + var(--module-nav-gap))}
+body.with-global-module-nav .wrap,
+body.with-global-module-nav .shell,
+body.with-global-module-nav main,
+body.with-global-module-nav .container{max-width:none}
+.global-module-nav{position:fixed;top:12px;right:12px;bottom:12px;z-index:850;width:var(--module-nav-width);pointer-events:none}
+.global-module-nav-inner{height:100%;display:flex;flex-direction:column;overflow:hidden;background:#fff;border:1px solid var(--line,#d6dee7);border-radius:16px;box-shadow:var(--shadow,0 10px 26px rgba(24,45,70,.08));pointer-events:auto}
+.module-nav-brand{display:flex;align-items:center;gap:8px;padding:15px 13px 12px;border-bottom:1px solid var(--line,#d6dee7);color:var(--blue,#173f6d);font-size:12px;font-weight:950;letter-spacing:.12em}
+.module-nav-brand-dot,.module-nav-status-dot{width:8px;height:8px;border-radius:50%;background:#21a366;flex:none}
+.module-nav-brand-dot{box-shadow:0 0 0 4px rgba(33,163,102,.10)}
+.module-nav-list{display:flex;flex-direction:column;gap:5px;padding:10px 8px}
+.module-nav-item{display:flex;align-items:center;gap:9px;min-height:42px;padding:9px 10px;border:1px solid transparent;border-radius:10px;color:#45576b;text-decoration:none;font-size:13px;font-weight:760;line-height:1.2;transition:background .14s ease,border-color .14s ease,color .14s ease,transform .14s ease}
+.module-nav-item:hover{background:var(--blue-soft,#edf4fb);border-color:#d3e1ef;color:var(--blue,#173f6d);transform:translateX(-1px)}
+.module-nav-item.active{background:var(--blue,#173f6d);color:#fff;border-color:var(--blue,#173f6d);box-shadow:0 6px 14px rgba(23,63,109,.16)}
+.module-nav-icon{width:20px;flex:none;text-align:center;font-size:15px;font-weight:900}
+.module-nav-text{min-width:0}
+.module-nav-footer{margin-top:auto;display:flex;align-items:center;gap:7px;padding:11px 12px;border-top:1px solid var(--line,#d6dee7);color:var(--muted,#697789);font-size:11px;font-weight:700}
+@media(max-width:1180px){:root{--module-nav-width:148px}.module-nav-item{padding-left:8px;padding-right:8px;font-size:12px}.module-nav-brand{font-size:11px}}
+@media(max-width:920px){body.with-global-module-nav{padding-right:0;padding-bottom:72px}.global-module-nav{top:auto;left:8px;right:8px;bottom:8px;width:auto;height:58px}.global-module-nav-inner{flex-direction:row;align-items:center;border-radius:14px}.module-nav-brand,.module-nav-footer{display:none}.module-nav-list{width:100%;flex-direction:row;align-items:stretch;gap:4px;padding:6px;overflow-x:auto}.module-nav-item{flex:1 0 auto;justify-content:center;min-width:95px;min-height:44px;padding:7px 9px}}
+@media(max-width:620px){.module-nav-item{min-width:72px;gap:5px;font-size:11px}.module-nav-icon{width:16px}}
+</style></head>
+<body class="with-global-module-nav">
+<div class="wrap">
+<h1>IAM — Suporte Básico à Decisão</h1>
+<p class="sub">Protótipo educacional para uso médico. Não substitui avaliação clínica, protocolo institucional ou cardiologia/hemodinâmica.</p>
+<div class="card">
+<h2>1. Quadro clínico</h2>
+<div class="grid">
+<div><label>Tipo de síndrome</label>
+<select id="tipo">
+<option value="">Selecione</option>
+<option value="stemi">IAM com supra de ST</option>
+<option value="nstemi">IAM sem supra / SCA sem supra</option>
+<option value="duvida">Diagnóstico ainda incerto</option>
+</select>
+</div>
+<div><label>Idade (anos)</label><input id="idade" max="120" min="18" type="number"/></div>
+<div><label>Peso (kg)</label><input id="peso" max="250" min="30" type="number"/></div>
+<div><label>Tempo de sintomas (horas)</label><input id="tempo" min="0" step="0.5" type="number"/></div>
+<div><label>PAS (mmHg)</label><input id="pas" type="number"/></div>
+<div><label>FC (bpm)</label><input id="fc" type="number"/></div>
+<div><label>SatO₂ (%)</label><input id="sat" type="number"/></div>
+<div><label>Creatinina (mg/dL)</label><input id="creat" step="0.1" type="number"/></div>
+<div><label>Plaquetas (/mm³)</label><input id="plaq" type="number"/></div>
+</div>
+</div>
+<div class="card">
+<h2>2. Checklist do ECG</h2>
+<p class="muted">Marque os achados observados. Os nomes dos padrões vêm acompanhados da descrição característica.</p>
+<h3>Alterações principais</h3>
+<div class="grid">
+<div class="check"><input id="stSupra" type="checkbox"/><label for="stSupra">Supradesnível de ST em derivações contíguas</label></div>
+<div class="check"><input id="stInfra" type="checkbox"/><label for="stInfra">Infradesnível de ST em derivações contíguas</label></div>
+<div class="check"><input id="tHiper" type="checkbox"/><label for="tHiper">Ondas T hiperagudas (altas, largas e simétricas, desproporcionais ao QRS)</label></div>
+<div class="check"><input id="tInv" type="checkbox"/><label for="tInv">Inversão nova ou dinâmica da onda T</label></div>
+<div class="check"><input id="qPat" type="checkbox"/><label for="qPat">Ondas Q patológicas novas</label></div>
+<div class="check"><input id="dinamica" type="checkbox"/><label for="dinamica">Alterações dinâmicas em ECGs seriados</label></div>
+<div class="check"><input id="bre" type="checkbox"/><label for="bre">Bloqueio de ramo esquerdo ou ritmo estimulado</label></div>
+<div class="check"><input id="brd" type="checkbox"/><label for="brd">Bloqueio de ramo direito novo ou presumivelmente novo</label></div>
+</div>
+<h3>Derivações com supra de ST</h3>
+<div class="grid">
+<div class="check"><input id="supD1" type="checkbox"/><label for="supD1">DI</label></div>
+<div class="check"><input id="supAVL" type="checkbox"/><label for="supAVL">aVL</label></div>
+<div class="check"><input id="supD2" type="checkbox"/><label for="supD2">DII</label></div>
+<div class="check"><input id="supD3" type="checkbox"/><label for="supD3">DIII</label></div>
+<div class="check"><input id="supAVF" type="checkbox"/><label for="supAVF">aVF</label></div>
+<div class="check"><input id="supV1" type="checkbox"/><label for="supV1">V1</label></div>
+<div class="check"><input id="supV2" type="checkbox"/><label for="supV2">V2</label></div>
+<div class="check"><input id="supV3" type="checkbox"/><label for="supV3">V3</label></div>
+<div class="check"><input id="supV4" type="checkbox"/><label for="supV4">V4</label></div>
+<div class="check"><input id="supV5" type="checkbox"/><label for="supV5">V5</label></div>
+<div class="check"><input id="supV6" type="checkbox"/><label for="supV6">V6</label></div>
+<div class="check"><input id="supV3R" type="checkbox"/><label for="supV3R">V3R</label></div>
+<div class="check"><input id="supV4R" type="checkbox"/><label for="supV4R">V4R</label></div>
+<div class="check"><input id="supV7" type="checkbox"/><label for="supV7">V7</label></div>
+<div class="check"><input id="supV8" type="checkbox"/><label for="supV8">V8</label></div>
+<div class="check"><input id="supV9" type="checkbox"/><label for="supV9">V9</label></div>
+</div>
+<h3>Padrões de alto risco / equivalentes de oclusão</h3>
+<div class="check"><input id="deWinter" type="checkbox"/><label for="deWinter">De Winter (infra ascendente do ST no ponto J em V1–V6, seguido de ondas T altas, positivas e simétricas; frequentemente discreto supra em aVR)</label></div>
+<div class="check"><input id="wellensA" type="checkbox"/><label for="wellensA">Wellens tipo A (ondas T bifásicas, inicialmente positivas e depois negativas, sobretudo em V2–V3, geralmente com pouca ou nenhuma elevação de ST)</label></div>
+<div class="check"><input id="wellensB" type="checkbox"/><label for="wellensB">Wellens tipo B (ondas T profundamente negativas e simétricas em V2–V4, podendo estender-se a V1–V6, em paciente geralmente sem dor no momento)</label></div>
+<div class="check"><input id="posterior" type="checkbox"/><label for="posterior">IAM posterior suspeito (infra horizontal em V1–V3, ondas R altas e largas nessas derivações e ondas T positivas; confirmar com V7–V9)</label></div>
+<div class="check"><input id="avr" type="checkbox"/><label for="avr">Supra em aVR com infra difuso (infra em múltiplas derivações, associado a supra em aVR e às vezes V1; sugere isquemia subendocárdica extensa, não identifica sozinho a anatomia)</label></div>
+<div class="check"><input id="sgConcordSup" type="checkbox"/><label for="sgConcordSup">Sgarbossa: supra concordante ≥1 mm (ST elevado na mesma direção de um QRS predominantemente positivo)</label></div>
+<div class="check"><input id="sgConcordInfra" type="checkbox"/><label for="sgConcordInfra">Sgarbossa: infra concordante ≥1 mm em V1–V3 (ST deprimido em V1, V2 ou V3)</label></div>
+<div class="check"><input id="sgDisc" type="checkbox"/><label for="sgDisc">Sgarbossa modificado (supra discordante desproporcional: elevação do ST ≥1 mm e relação ST/S ≤ −0,25 em derivação com QRS negativo)</label></div>
+<h3>Possíveis imitadores</h3>
+<div class="check"><input id="pericardite" type="checkbox"/><label for="pericardite">Pericardite (supra difuso, geralmente côncavo, associado a depressão de PR; sem distribuição territorial típica)</label></div>
+<div class="check"><input id="repol" type="checkbox"/><label for="repol">Repolarização precoce (elevação estável do ponto J, entalhe ou empastamento terminal do QRS, mais comum em precordiais, sem evolução dinâmica)</label></div>
+<div class="check"><input id="brugada" type="checkbox"/><label for="brugada">Padrão de Brugada tipo 1 (supra descendente/coved ≥2 mm em V1–V2 seguido de onda T negativa)</label></div>
+</div>
+<div class="card">
+<h2>3. Estratégia e complicações</h2>
+<div class="grid">
+<div><label>Estratégia de reperfusão</label>
+<select id="reperf">
+<option value="">Não definida</option>
+<option value="pci">ICP primária / angioplastia</option>
+<option value="fibrino">Fibrinólise</option>
+<option value="sem">Sem reperfusão imediata</option>
+</select>
+</div>
+<div><label>Estado atual</label>
+<select id="estado">
+<option value="estavel">Estável</option>
+<option value="choque">Choque cardiogênico</option>
+<option value="eap">Edema agudo de pulmão</option>
+</select>
+</div>
+</div>
+<div class="check"><input id="sangramento" type="checkbox"/><label for="sangramento">Sangramento ativo relevante</label></div>
+<div class="check"><input id="trombo" type="checkbox"/><label for="trombo">Trombo ventricular esquerdo documentado</label></div>
+<div class="check"><input id="fa" type="checkbox"/><label for="fa">Fibrilação atrial com indicação de anticoagulação</label></div>
+<div class="check"><input id="tev" type="checkbox"/><label for="tev">TVP ou TEP concomitante</label></div>
+<div class="check"><input id="hit" type="checkbox"/><label for="hit">HIT prévia ou suspeita</label></div>
+</div>
+<div class="card">
+<h2>4. Alergias e intolerâncias</h2>
+<div class="check"><input id="algAas" type="checkbox"/><label for="algAas">Alergia verdadeira ao AAS</label></div>
+<div class="check"><input id="algClop" type="checkbox"/><label for="algClop">Alergia ao clopidogrel</label></div>
+<div class="check"><input id="algHep" type="checkbox"/><label for="algHep">Alergia grave à heparina</label></div>
+<div class="check"><input id="algStat" type="checkbox"/><label for="algStat">Alergia/intolerância grave a estatinas</label></div>
+<div class="check"><input id="algIeca" type="checkbox"/><label for="algIeca">Angioedema ou alergia grave a IECA</label></div>
+<div class="check"><input id="algMorf" type="checkbox"/><label for="algMorf">Alergia à morfina</label></div>
+</div>
+<div class="card">
+<button onclick="avaliar()">Gerar condutas sugeridas</button>
+</div>
+<div id="saida"></div>
+<div class="footer">
+    Base conceitual: diretrizes contemporâneas de síndrome coronariana aguda AHA/ACC e recomendações da SBC. Protótipo sem validação clínica, sem prontuário eletrônico e sem cálculo automático de clearance de creatinina.
+  </div>
+</div>
+<script>
+function val(id){return document.getElementById(id).value}
+function num(id){return Number(val(id))}
+function chk(id){return document.getElementById(id).checked}
+function bloco(titulo, texto, classe="result"){
+  return `<div class="${classe}"><strong>${titulo}</strong><div>${texto}</div></div>`
+}
+
+function avaliar(){
+  const tipo=val("tipo"), idade=num("idade"), peso=num("peso"), tempo=num("tempo");
+  const pas=num("pas"), fc=num("fc"), sat=num("sat"), creat=num("creat"), plaq=num("plaq");
+  const reperf=val("reperf"), estado=val("estado");
+  let out='<div class="card"><h2>Condutas sugeridas</h2>';
+
+  if(!tipo){
+    out += bloco("Dados insuficientes","Defina o tipo de síndrome coronariana antes de gerar uma estratégia.","danger");
+    out += "</div>"; document.getElementById("saida").innerHTML=out; return;
+  }
+
+  if(chk("sangramento")){
+    out += bloco("Alerta crítico","Sangramento ativo relevante: suspender a recomendação automática de antitrombóticos e discutir imediatamente risco isquêmico versus hemorrágico.","danger");
+  }
+
+  out += bloco("Medidas iniciais",
+    "<ul><li>Monitorização contínua, acesso venoso, ECG seriado e troponina seriada.</li>"+
+    "<li>Acionar cardiologia/hemodinâmica no IAM com supra ou instabilidade.</li>"+
+    (sat && sat < 90 ? "<li>Oxigênio suplementar indicado por hipoxemia.</li>" : "<li>Oxigênio não é sugerido rotineiramente se SatO₂ ≥ 90%.</li>")+
+    "</ul>");
+
+  // AAS e clopidogrel
+  let anti = "<ul>";
+  if(chk("algAas")){
+    anti += "<li><b>Não administrar AAS</b> em alergia verdadeira grave. Usar clopidogrel como alternativa antiplaquetária e considerar dessensibilização em ambiente apropriado quando DAPT for essencial.</li>";
+  } else {
+    anti += "<li>AAS: considerar dose de ataque mastigável conforme protocolo institucional, seguida de manutenção.</li>";
+  }
+  if(chk("algClop")){
+    anti += "<li><b>Clopidogrel contraindicado por alergia.</b> Como o serviço não dispõe de outro P2Y12, discutir transferência, dessensibilização ou alternativa com cardiologia; não há substituto oral equivalente disponível no cenário informado.</li>";
+  } else {
+    if(tipo==="stemi" && reperf==="fibrino" && idade>75){
+      anti += "<li>Clopidogrel: em fibrinólise e idade &gt;75 anos, sugerir 75 mg/dia sem ataque.</li>";
+    } else if(reperf==="pci"){
+      anti += "<li>Clopidogrel: considerar ataque de 600 mg, seguido de 75 mg/dia.</li>";
+    } else {
+      anti += "<li>Clopidogrel: considerar ataque de 300 mg; em estratégia invasiva/ICP pode-se usar 600 mg conforme protocolo.</li>";
+    }
+  }
+  anti += "</ul>";
+  out += bloco("Antiagregação",anti, chk("algAas")||chk("algClop") ? "result warn":"result");
+
+  // Estatina
+  let stat="<ul>";
+  if(chk("algStat")){
+    stat += "<li>Não forçar reexposição em alergia grave. Considerar ezetimiba e encaminhar para estratégia hipolipemiante adicional.</li>";
+  } else {
+    stat += "<li>Preferir estatina de alta intensidade: atorvastatina 40–80 mg/dia ou rosuvastatina 20–40 mg/dia.</li>";
+    stat += "<li>Se indisponíveis no serviço: sinvastatina 40 mg/dia é alternativa de menor intensidade; registrar que não equivale à terapia de alta intensidade.</li>";
+    stat += "<li>Pravastatina pode ser usada quando houver limitação por interação/intolerância, porém também é menos potente.</li>";
+  }
+  stat += "</ul>";
+  out += bloco("Estatina",stat,chk("algStat")?"result warn":"result ok");
+
+
+  // Interpretação do ECG
+  let ecg="<ul>";
+  let achadoECG=false;
+  const inferior=chk("supD2")&&chk("supD3")&&chk("supAVF");
+  const anterior=(chk("supV2")&&chk("supV3")) || (chk("supV3")&&chk("supV4"));
+  const lateral=(chk("supD1")&&chk("supAVL")) || (chk("supV5")&&chk("supV6"));
+  const vd=chk("supV3R")||chk("supV4R");
+  const postConf=(chk("supV7")&&chk("supV8")) || (chk("supV8")&&chk("supV9"));
+
+  if(inferior){
+    achadoECG=true;
+    ecg += "<li><b>IAM inferior provável:</b> supra em DII, DIII e aVF. Procurar alterações recíprocas em DI/aVL e registrar DIII maior que DII quando presente.</li>";
+  }
+  if(anterior){
+    achadoECG=true;
+    ecg += "<li><b>IAM anterior/septoanterior provável:</b> supra em derivações precordiais anteriores contíguas.</li>";
+  }
+  if(lateral){
+    achadoECG=true;
+    ecg += "<li><b>IAM lateral provável:</b> supra em DI/aVL e/ou V5–V6.</li>";
+  }
+  if(vd){
+    achadoECG=true;
+    ecg += "<li><b>Acometimento de ventrículo direito provável:</b> supra em V3R/V4R. Evitar nitratos se houver dependência de pré-carga ou hipotensão; monitorar bradicardia e BAV.</li>";
+  } else if(inferior){
+    ecg += "<li>IAM inferior marcado sem derivações direitas: obter V3R/V4R, especialmente se hipotensão, turgência jugular ou pulmões limpos.</li>";
+  }
+  if(postConf){
+    achadoECG=true;
+    ecg += "<li><b>IAM posterior confirmado pelas derivações posteriores:</b> supra em derivações contíguas V7–V9.</li>";
+  }
+  if(chk("posterior")){
+    achadoECG=true;
+    ecg += "<li><b>IAM posterior suspeito:</b> infra em V1–V3 com R altas/largas e T positivas. Solicitar V7–V9 imediatamente.</li>";
+  }
+  if(chk("deWinter")){
+    achadoECG=true;
+    ecg += "<li><b>Padrão de De Winter:</b> achado de alto risco compatível com oclusão coronária aguda, mesmo sem supra clássico. Acionar cardiologia/hemodinâmica imediatamente.</li>";
+  }
+  if(chk("wellensA")||chk("wellensB")){
+    achadoECG=true;
+    ecg += "<li><b>Padrão de Wellens:</b> sugere lesão crítica de descendente anterior proximal. Evitar teste ergométrico e indicar avaliação invasiva precoce conforme contexto clínico.</li>";
+  }
+  if(chk("avr")){
+    achadoECG=true;
+    ecg += "<li><b>Supra em aVR com infra difuso:</b> indica isquemia extensa e alto risco. Não usar isoladamente para afirmar tronco de coronária esquerda; integrar com clínica e instabilidade.</li>";
+  }
+  if(chk("sgConcordSup")||chk("sgConcordInfra")||chk("sgDisc")){
+    achadoECG=true;
+    ecg += "<li><b>Critérios de Sgarbossa/Sgarbossa modificado positivos:</b> em BRE ou ritmo estimulado, aumenta a suspeita de oclusão coronária aguda e exige avaliação urgente para reperfusão.</li>";
+  }
+  if(chk("tHiper")){
+    achadoECG=true;
+    ecg += "<li><b>Ondas T hiperagudas:</b> podem representar fase muito precoce de oclusão. Repetir ECG em curto intervalo e comparar com traçados anteriores.</li>";
+  }
+  if(chk("stInfra")||chk("tInv")||chk("dinamica")){
+    achadoECG=true;
+    ecg += "<li><b>Isquemia sem supra clássico:</b> infra de ST, inversão de T ou alterações dinâmicas sustentam SCA e devem ser correlacionadas com sintomas e troponina seriada.</li>";
+  }
+  if(chk("pericardite")) ecg += "<li><b>Possível pericardite:</b> supra difuso e depressão de PR favorecem diagnóstico alternativo; procurar dor pleurítica/posicional e ausência de padrão territorial.</li>";
+  if(chk("repol")) ecg += "<li><b>Possível repolarização precoce:</b> comparar com ECG prévio e verificar estabilidade do padrão.</li>";
+  if(chk("brugada")) ecg += "<li><b>Possível padrão de Brugada tipo 1:</b> não classificar automaticamente como IAM; avaliar síncope, febre, história familiar e cardiologia.</li>";
+  if(!achadoECG && !chk("pericardite") && !chk("repol") && !chk("brugada")){
+    ecg += "<li>Nenhum padrão específico foi marcado. Um ECG inicial não diagnóstico não exclui SCA; repetir ECG se sintomas persistirem ou houver mudança clínica.</li>";
+  }
+  ecg += "</ul>";
+  out += bloco("Interpretação orientada do ECG",ecg,
+    (chk("deWinter")||chk("posterior")||chk("sgConcordSup")||chk("sgConcordInfra")||chk("sgDisc")||inferior||anterior||postConf) ? "result danger":"result warn");
+
+  // Heparina
+  let hep="<ul>";
+  let manter=false, motivo=[];
+  if(chk("sangramento")){
+    hep += "<li><b>Não recomendar anticoagulação automática enquanto houver sangramento ativo.</b></li>";
+  } else if(chk("hit") || chk("algHep")){
+    hep += "<li><b>Não usar HNF nem enoxaparina.</b> Considerar anticoagulante não-heparínico conforme disponibilidade e avaliação especializada.</li>";
+  } else {
+    if(tipo==="nstemi"){manter=true; motivo.push("SCA sem supra durante a fase aguda/internação até revascularização ou definição da estratégia");}
+    if(tipo==="stemi" && reperf==="fibrino"){manter=true; motivo.push("IAM com supra tratado com fibrinólise, até ICP ou pelo período definido no protocolo");}
+    if(chk("trombo")){manter=true; motivo.push("trombo ventricular esquerdo");}
+    if(chk("fa")){manter=true; motivo.push("fibrilação atrial com indicação independente");}
+    if(chk("tev")){manter=true; motivo.push("TVP/TEP concomitante");}
+
+    if(tipo==="stemi" && reperf==="pci" && !chk("trombo") && !chk("fa") && !chk("tev")){
+      hep += "<li><b>Após ICP primária bem-sucedida:</b> não manter heparina plena rotineiramente, salvo outra indicação.</li>";
+    } else if(manter){
+      hep += "<li><b>Manter anticoagulação.</b> Motivos: "+motivo.join("; ")+".</li>";
+    } else {
+      hep += "<li>Sem indicação clara para manutenção prolongada apenas pelo diagnóstico informado. Individualizar conforme estratégia invasiva e protocolo local.</li>";
+    }
+
+    if(creat>=2.5){
+      hep += "<li>Disfunção renal importante provável: preferir HNF pela maior facilidade de titulação e reversão; calcular clearance antes de prescrever enoxaparina.</li>";
+    } else {
+      hep += "<li>HNF é opção quando se deseja rápida reversão/titulação. Enoxaparina exige ajuste se clearance &lt;30 mL/min.</li>";
+    }
+    if(peso){
+      const bolus=Math.min(Math.round(60*peso),4000);
+      const inf=Math.min(Math.round(12*peso),1000);
+      hep += `<li>Exemplo de HNF em cenário fibrinolítico/NSTEMI: bolus calculado ${bolus} U e infusão inicial ${inf} U/h, com ajuste por TTPa ou anti-Xa conforme protocolo.</li>`;
+    }
+  }
+  hep += "</ul>";
+  out += bloco("Heparina / anticoagulação",hep,(chk("sangramento")||chk("hit")||chk("algHep"))?"result danger":"result");
+
+  // Contraindicações e alertas
+  let alertas="<ul>";
+  if(pas && pas<90) alertas += "<li>PAS &lt;90 mmHg: evitar nitratos e betabloqueador; avaliar choque.</li>";
+  if(estado==="choque") alertas += "<li>Choque cardiogênico: priorizar reperfusão urgente, suporte hemodinâmico e ecocardiograma à beira-leito.</li>";
+  if(estado==="eap") alertas += "<li>Edema agudo de pulmão: avaliar ventilação não invasiva/invasiva e vasodilatador somente se pressão permitir.</li>";
+  if(fc && fc<50) alertas += "<li>FC &lt;50 bpm: evitar betabloqueador inicialmente.</li>";
+  if(plaq && plaq<50000) alertas += "<li>Plaquetas &lt;50.000/mm³: risco hemorrágico muito alto; decisão antitrombótica deve ser individualizada.</li>";
+  else if(plaq && plaq<100000) alertas += "<li>Plaquetas &lt;100.000/mm³: reavaliar intensidade e duração da terapia antitrombótica.</li>";
+  if(chk("algIeca")) alertas += "<li>Angioedema/alergia grave a IECA: não reintroduzir IECA; considerar BRA com cautela e após estabilização.</li>";
+  if(chk("algMorf")) alertas += "<li>Alergia à morfina: considerar fentanil titulado se analgesia opioide for realmente necessária.</li>";
+  if(tipo==="stemi" && reperf==="fibrino" && tempo>12) alertas += "<li>Tempo de sintomas &gt;12 h: fibrinólise não deve ser sugerida automaticamente; avaliar isquemia persistente e estratégia invasiva.</li>";
+  if(alertas==="<ul>") alertas += "<li>Nenhum alerta adicional identificado com os dados preenchidos.</li>";
+  alertas += "</ul>";
+  out += bloco("Alertas adicionais",alertas,"result warn");
+
+  out += bloco("Limitações","Este protótipo não mede milímetros no traçado, não confirma contiguidade ou proporcionalidade automaticamente, não verifica todas as contraindicações à fibrinólise, não calcula GRACE/CRUSADE e não deve emitir prescrição sem revisão médica. Os padrões de ECG são alertas de apoio e exigem conferência visual do traçado.","result");
+  out += "</div>";
+  document.getElementById("saida").innerHTML=out;
+}
+</script>
+<aside aria-label="Módulos MinhaUTI" class="global-module-nav" id="dadosutiGlobalNav">
+<div class="global-module-nav-inner">
+<div class="module-nav-brand">
+<span class="module-nav-brand-dot"></span>
+<span>MINHAUTI</span>
+</div>
+<nav class="module-nav-list">
+<a class="module-nav-item" href="/">
+<span class="module-nav-icon">▣</span>
+<span class="module-nav-text">Minha UTI</span>
+</a><a class="module-nav-item" href="/gasometria/">
+<span class="module-nav-icon">◉</span>
+<span class="module-nav-text">Gasometria</span>
+</a><a class="module-nav-item" href="/auxiliar/">
+<span class="module-nav-icon">▤</span>
+<span class="module-nav-text">Auxiliar de dados</span>
+</a><a class="module-nav-item" href="/npt/">
+<span class="module-nav-icon">◆</span>
+<span class="module-nav-text">NPT</span>
+</a><a class="module-nav-item" href="/scores/">
+<span class="module-nav-icon">▦</span>
+<span class="module-nav-text">Scores</span>
+</a><a aria-current="page" class="module-nav-item active" href="/iam/">
+<span class="module-nav-icon">♥</span>
+<span class="module-nav-text">IAM</span>
+</a>
+</nav>
+<div class="module-nav-footer">
+<span class="module-nav-status-dot"></span>
+<span>Processamento local</span>
+</div>
+</div>
+</aside></body>
+</html>
