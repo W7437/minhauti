@@ -398,7 +398,7 @@ function temperatureEvolutionNarrative(data=getData()){
     const max=Math.max(...values);
 
     // Na EG, não narrar hipotermia.
-    if(max>=38){
+    if(max>=37.8){
       return `apresentou febre de ${max.toFixed(1).replace(".",",")}°C`;
     }
 
