@@ -1004,7 +1004,13 @@ body.with-global-module-nav .sidebar{
 
   /* Evolução anterior: entrada e auxiliar lado a lado, mais densos. */
   .previous-grid{grid-template-columns:1fr 1fr!important;gap:7px!important}
-  .previous-text{min-height:118px!important;height:clamp(118px,19vh,180px)!important}
+  .previous-text{
+  min-height:300px!important;
+  height:300px!important;
+  max-height:none!important;
+  resize:vertical!important;
+  overflow:auto!important;
+}
   .nursing-aux-text{min-height:92px!important;height:clamp(92px,15vh,145px)!important}
 
   /* Hemo/Resp/Neuro em três colunas permanentes no desktop. */
