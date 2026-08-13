@@ -990,7 +990,13 @@ body.with-global-module-nav .sidebar{
 
   /* Paciente: todos os dados principais na mesma linha em telas amplas. */
   #panel-patient .card > .grid{grid-template-columns:.7fr .78fr .92fr 1.05fr 1.15fr .58fr!important;align-items:end!important}
-  #panel-patient .memory-text{min-height:54px!important;height:54px!important;resize:vertical!important}
+  #panel-patient .memory-text{
+  min-height:230px!important;
+  height:230px!important;
+  max-height:none!important;
+  resize:vertical!important;
+  overflow:auto!important;
+}
   .device-grid-v9{gap:5px 9px!important}
   .device-grid-v9 .device-row{grid-template-columns:78px minmax(0,1fr)!important}
   .device-grid-v9 .device-row input[type=text]{padding-top:5px!important;padding-bottom:5px!important}
