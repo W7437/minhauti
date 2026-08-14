@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>DadosUTI — minhauti</title>
+<link href="style.css?v=6.4" rel="stylesheet"/><meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/><meta content="no-cache" http-equiv="Pragma"/><meta content="0" http-equiv="Expires"/>
+<style id="minhauti-typography-sidebar-patch">
+/* Hierarquia tipográfica: negrito forte reservado a títulos e alertas */
+label,
+.check,
+.small-note,
+.nursing-note,
+.result,
+.active-bed-hint,
+.bed-btn,
+.subtabs button,
+input,
+select,
+textarea {
+  font-weight: 400 !important;
+}
+button {
+  font-weight: 500 !important;
+}
+h1,h2,h3,
+.panel-step-title h2,
+.sidebar h3,
+.tools-panel-title,
+#currentBedLabel {
+  font-weight: 700 !important;
+}
+
+/* Resultados comuns não ficam em negrito; alertas preservam destaque */
+.result:not(.warn):not(.danger):not(.error) strong,
+.result:not(.warn):not(.danger):not(.error) b {
+  font-weight: 400 !important;
+}
+.result.warn strong,
+.result.warn b,
+.result.danger strong,
+.result.danger b,
+.result.error strong,
+.result.error b,
+.warn strong,.warn b,
+.danger strong,.danger b,
+.error strong,.error b {
+  font-weight: 700 !important;
+}
+
+/* Escalas são apoio de consulta, não aviso */
+#glasgowWrap .small-note,
+#rassWrap .small-note {
+  font-weight: 400 !important;
+}
+
+/* Desktop: leitos | conteúdo | ferramentas */
+@media (min-width: 901px) {
+  .app {
+    grid-template-columns: minmax(145px, 180px) minmax(0, 1fr) minmax(230px, 275px) !important;
+    align-items: start;
+  }
+  .tools-sidebar {
+    position: sticky;
+    top: 10px;
+    align-self: start;
+  }
+}
+
+.tools-sidebar {
+  min-width: 0;
+}
+.tools-panel {
+  background: #fff;
+  border: 1px solid #d6e0ea;
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 8px 22px rgba(23,63,109,.07);
+}
+.tools-panel-title {
+  color: var(--blue, #173f6d);
+  font-size: 13px;
+  letter-spacing: .08em;
+  margin: 2px 4px 10px;
+}
+.tools-list {
+  display: grid;
+  gap: 7px;
+}
+.tools-link {
+  display: grid;
+  grid-template-columns: 30px minmax(0,1fr) 14px;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+  padding: 9px 8px;
+  border: 1px solid #dce5ed;
+  border-radius: 11px;
+  background: #fff;
+  color: #173f6d;
+  text-decoration: none;
+  transition: border-color .15s ease, background .15s ease;
+}
+.tools-link:hover {
+  border-color: #83b9c8;
+  background: #f7fbfd;
+}
+.tools-link.active {
+  border-color: #1ba8a8;
+  background: #f1fbfb;
+}
+.tools-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #eef7f8;
+  color: #168d9a;
+  font-size: 16px;
+}
+.tools-copy {
+  min-width: 0;
+}
+.tools-name {
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 500;
+  color: #173f6d;
+}
+.tools-sub {
+  margin-top: 2px;
+  font-size: 10px;
+  line-height: 1.25;
+  font-weight: 400;
+  color: #6b7f91;
+}
+.tools-chevron {
+  font-size: 18px;
+  color: #7390a5;
+  text-align: right;
+}
+.tools-local {
+  border-top: 1px solid #e4ebf1;
+  margin-top: 10px;
+  padding: 10px 4px 2px;
+  font-size: 10px;
+  font-weight: 400;
+  color: #64798b;
+}
+.tools-local-dot {
+  display:inline-block;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#55b989;
+  margin-right:6px;
+}
+
+/* Em telas menores a barra não ocupa espaço lateral */
+@media (max-width: 900px) {
+  .tools-sidebar {
+    display: none;
+  }
+}
+</style>
+
+</head>
+<body class="tool-locked"><div aria-labelledby="usageGateTitle" aria-modal="true" class="usage-gate" id="usageGate" role="dialog">
+<div class="usage-gate-card">
+<div class="usage-gate-icon">!</div>
+<h2 id="usageGateTitle">Atenção</h2>
+<p>
+      essa é uma ferramenta de suporte e não substitui avaliação por médico.
+      Toda e qualquer informação gerada deve ser avaliada minuciosamente por profissional
+      regularmente credenciado e ponderado perante avaliação própria.
+    </p>
+<a class="policy-link" href="politicas.html" rel="noopener" target="_blank">
+      Ler Políticas de uso
+    </a>
+<label class="usage-agreement">
+<input id="usageAgreement" type="checkbox"/>
+<span>Li e concordo com as políticas de uso</span>
+</label>
+<button class="primary usage-enter" disabled="" id="enterToolBtn" type="button">
+      Entrar na ferramenta
+    </button>
+</div>
+</div>
+<div class="shell"><header class="hero">
+<div>
+<div class="brand">DADOSUTI</div>
+<h1>minhauti</h1>
+<p>Organização dos dados clínicos, apoio aos cálculos e geração estruturada da evolução do paciente crítico.</p>
+</div>
+<div class="local-badge"><span></span> Processamento local</div>
+</header><div class="privacy-strip"><strong>Processamento local.</strong> Os dados clínicos e laboratoriais são processados apenas neste navegador e não são enviados ou armazenados. <strong>Atenção:</strong> essa é uma ferramenta de suporte. Não substitui avaliação por médico. Toda e qualquer informação gerada deve ser avaliada minuciosamente por profissional regularmente credenciado.</div><div class="app">
+<aside class="sidebar">
+<h3>Pacientes / leitos</h3>
+<div class="bed-list" id="bedList"></div>
+</aside>
+<main class="content">
+<div class="topbar" id="patientToolbar">
+<button class="primary" onclick="saveCurrent()" type="button">Salvar leito</button>
+<button class="primary" onclick="generateEvolution()" type="button">Gerar evolução</button>
+<button onclick="copyEvolution()" type="button">Copiar evolução</button>
+<button onclick="exportData()" type="button">Exportar dados</button>
+<input accept=".json" id="importFile" onchange="importData(event)" style="display:none" type="file"/><button onclick="document.getElementById('importFile').click()" type="button">Importar dados</button>
+<button class="danger" onclick="clearBed()" type="button">Limpar leito</button>
+</div>
+<div aria-atomic="true" aria-live="polite" class="active-bed-banner">
+<div class="active-bed-kicker"><span class="active-bed-dot"></span> LEITO ATIVO</div>
+<strong id="currentBedLabel">Leito 1</strong>
+<span class="active-bed-hint">Confira o leito antes de registrar ou gerar a evolução.</span>
+</div>
+<section id="patientView">
+<div class="subtabs">
+<button class="active" data-panel="patient" type="button">Paciente</button><button class="" data-panel="previous" type="button">Evolução anterior</button><button class="" data-panel="hemo" type="button">Hemodinâmica / Respiratório / Neurológico</button><button data-panel="dva" type="button">DVA</button><button class="" data-panel="renal" type="button">Função Renal</button><button class="" data-panel="labs" type="button">Laboratório</button><button data-panel="care" type="button">Sintomas / Profilaxias</button><button class="" data-panel="checklist" type="button">Checklist</button><button class="" data-panel="evolution" type="button">Evolução</button></div>
+<form autocomplete="off" id="form">
+<section class="panel active" id="panel-patient"><div class="panel-step-title">
+<span class="step">1</span>
+<h2>Paciente</h2>
+</div>
+<div class="card">
+<div class="grid">
+<label>Idade<input name="age" type="number"/></label>
+<label>Peso (kg)<input name="weight" step="0.1" type="number"/></label>
+<label>Sexo<select name="sex"><option value=""></option><option>Masculino</option><option>Feminino</option></select></label>
+<label>Estado clínico<select name="severity"><option value=""></option><option>estável</option><option>comprometido</option><option>grave</option><option>gravíssimo</option></select></label>
+<label>Dieta
+  <select name="diet">
+<option value=""></option>
+<option value="Zero">Zero</option>
+<option value="por SNE">por SNE</option>
+<option value="líquida de prova">líquida de prova</option>
+<option value="líquida total">líquida total</option>
+<option value="pastosa">pastosa</option>
+<option value="liquidopastosa">liquidopastosa</option>
+<option value="branda">branda</option>
+<option value="livre">livre</option>
+<option value="suspensa para exame">suspensa para exame</option>
+<option value="suspensa para procedimento">suspensa para procedimento</option>
+</select>
+</label><label class="check"><input name="hemodialysis" type="checkbox"/> Em HD</label>
+</div>
+<h3>Hipóteses diagnósticas</h3>
+<textarea class="memory-text" name="diagnoses_text" placeholder="Cole ou digite aqui todas as hipóteses diagnósticas. O texto será mantido como você escreveu."></textarea>
+<h3>Dispositivos em uso</h3>
+<div class="device-row"><label class="check"><input name="dev_cvc" type="checkbox"/> CVC</label><input name="dev_cvc_note" placeholder="Local e data de instalação" type="text"/></div>
+<div class="device-row"><label class="check"><input name="dev_cdl" type="checkbox"/> CDL</label><input name="dev_cdl_note" placeholder="Local e data de instalação" type="text"/></div>
+<div class="device-row"><label class="check"><input name="dev_avp" type="checkbox"/> PAI</label><input name="dev_avp_note" placeholder="Local e data de instalação" type="text"/></div>
+<div class="device-row"><label class="check"><input name="dev_svd" type="checkbox"/> SVD</label><input name="dev_svd_note" placeholder="data de instalação" type="text"/></div>
+<div class="device-row"><label class="check"><input name="dev_tot" type="checkbox"/> TOT/IOT</label><input name="dev_tot_note" placeholder="Numeração e data de instalação" type="text"/></div>
+<div class="device-row"><label class="check"><input name="dev_tqt" type="checkbox"/> TQT</label><input name="dev_tqt_note" placeholder="Numeração e data de instalação" type="text"/></div>
+</div>
+</section><section class="panel" id="panel-previous"><div class="panel-step-title">
+<span class="step">2</span>
+<h2>Evolução anterior</h2>
+</div>
+<div class="previous-grid"><div class="card">
+<textarea class="previous-text" name="previous_evolution" placeholder="Cole aqui a evolução anterior. Exames laboratoriais antigos não são reaproveitados."></textarea>
+</div><div class="card nursing-import-card">
+<h2>Dados de enfermagem — Auxiliar</h2>
+<p class="small-note nursing-note">Cole abaixo o resumo gerado pelo aplicativo Auxiliar. O minhauti tenta extrair automaticamente HGT, temperatura, diurese e balanço hídrico.</p>
+<textarea class="nursing-aux-text" id="nursingAuxText" name="nursing_aux_text" placeholder="Ex.:
+T 36,1-37,4       DU 825 mL       BH +523 mL
+FC 85-97          FR 15-33        SO2 90-95%
+PAS 98-152        PAD 47-69
+HGT 116-97-115
+DRENO Não registrado
+EVAC Não registrado"></textarea>
+<label class="nursing-period-field">
+      Período do DDE
+      <select id="nursingPeriod" name="nursing_period">
+<option selected="" value="24">24 h</option>
+<option value="12">12 h</option>
+</select>
+</label><button class="primary nursing-import-button" onclick="extractNursingData({force:true})" type="button">Extrair novamente</button>
+<div class="result muted" id="nursingExtractStatus">Cole os dados do Auxiliar; a extração será tentada automaticamente.</div>
+</div></div>
+</section><section class="panel" id="panel-hemo"><div class="panel-step-title">
+<span class="step">3</span>
+<h2>Hemodinâmica, Respiratório e Neurológico</h2>
+</div>
+<div class="clinical-triad">
+<div class="card compact-card">
+<h2>Hemodinâmica</h2>
+<div class="grid compact-grid">
+<label>FC<input name="hr" type="number"/></label>
+<label>PAS<input name="sbp" type="number"/></label>
+<label>PAD<input name="dbp" type="number"/></label>
+<label>PAM<input name="map" type="number"/></label>
+</div>
+</div>
+<div class="card compact-card">
+<h2>Função Respiratória</h2>
+<div class="grid compact-grid">
+<label>Suporte Ventilatório
+        <select name="resp_support">
+<option value=""></option>
+<option value="spontaneous">Espontânea</option>
+<option value="oxygen">CNO2</option>
+<option value="niv">VNI</option>
+<option value="iot">IOT + AVM</option>
+<option value="trach">TQT em AVM</option>
+<option value="trach_aa">TQT em AA</option>
+</select>
+</label><label class="hidden" id="oxygenFlowWrap">
+  Fluxo de O₂ (L/min)
+  <input min="0" name="oxygen_flow_lpm" step="0.5" type="number"/>
+</label><div class="result muted hidden span-all" id="oxygenFio2Suggestion">
+  Informe o fluxo do CNO2 para estimativa aproximada da FiO₂.
+</div>
+<label>Adaptação
+        <select name="adaptation">
+<option value=""></option>
+<option value="good">Bem adaptado</option>
+<option value="poor">Desconforto/assincronia</option>
+</select>
+</label>
+<label>FiO₂ (%)<input name="fio2" type="number"/></label>
+<label class="hidden" id="peepWrap">PEEP<input name="peep" type="number"/></label><label class="hidden" id="ventModeWrap">
+  Modo ventilatório
+  <select name="vent_mode">
+<option value=""></option>
+<option value="PCV">PCV</option>
+<option value="VCV">VCV</option>
+<option value="PS">PS</option>
+</select>
+</label>
+<label>PaO₂<input name="pao2" type="number"/></label>
+<label>SpO₂<input name="spo2" type="number"/></label>
+<label>FR<input name="rr" type="number"/></label>
+</div>
+</div>
+<div class="card compact-card">
+<h2>Neurológico</h2>
+<div class="grid compact-grid neuro-grid">
+<label>Sedação em uso?
+  <select id="sedationSelect" name="sedation">
+    <option value=""></option>
+    <option value="no">Não</option>
+    <option value="yes">Sim</option>
+  </select>
+</label>
+
+<div class="span-all" id="glasgowWrap">
+  <label>Glasgow
+    <input max="15" min="3" name="gcs" type="number"/>
+  </label>
+  <div class="small-note" style="margin-top:6px;line-height:1.45">
+    Escala de Glasgow:<br>
+    Ocular: 4 espontânea · 3 à voz · 2 à dor · 1 nenhuma<br>
+    Verbal: 5 orientado · 4 confuso · 3 palavras inapropriadas · 2 sons incompreensíveis · 1 nenhuma<br>
+    Motora: 6 obedece comandos · 5 localiza dor · 4 retira à dor · 3 flexão anormal · 2 extensão · 1 nenhuma
+  </div>
+</div>
+
+<div class="span-all hidden" id="rassWrap">
+  <label>RASS
+    <input max="4" min="-5" name="rass" type="number"/>
+  </label>
+  <div class="small-note" style="margin-top:6px;line-height:1.45">
+    Escala RASS:<br>
+    +4 combativo · +3 muito agitado · +2 agitado · +1 inquieto · 0 alerta e calmo<br>
+    −1 sonolento · −2 sedação leve · −3 sedação moderada · −4 sedação profunda · −5 não despertável
+  </div>
+</div>
+
+<label>Pupilas
+  <select id="pupilsSelect" name="pupils">
+    <option value=""></option>
+    <option value="isocoric">Isocóricas</option>
+    <option value="anisocoric">Anisocóricas</option>
+  </select>
+</label>
+
+<div class="conditional-fields hidden span-all" id="anisocoriaFields">
+  <div class="grid compact-grid">
+    <label>Alteração
+      <select name="pupil_change">
+        <option value=""></option>
+        <option value="miose">Miose</option>
+        <option value="midriase">Midríase</option>
+      </select>
+    </label>
+    <label>Lado
+      <select name="pupil_side">
+        <option value=""></option>
+        <option value="direita">À direita</option>
+        <option value="esquerda">À esquerda</option>
+      </select>
+    </label>
+  </div>
+</div>
+
+<label>Déficit motor
+  <select id="motorDeficitSelect" name="motor_deficit">
+    <option value=""></option>
+    <option value="no">Não</option>
+    <option value="yes">Sim</option>
+  </select>
+</label>
+
+<label class="hidden span-all" id="motorDeficitWhereWrap">
+  Onde?
+  <input name="motor_deficit_where" placeholder="Onde?" type="text"/>
+</label>
+</div>
+<div class="result muted" id="neuroPreview">Preencha os dados neurológicos.</div>
+</div>
+</div></section><section class="panel" id="panel-dva"><div class="panel-step-title"><span class="step">4</span><h2>DVA</h2></div><div class="card dva-section">
+<h2>DVA</h2>
+<div class="" id="dvaFields">
+<div class="dva-card">
+<h3>Noradrenalina</h3>
+<div class="grid">
+<label>Ampolas<input name="norepi_ampoules" type="number"/></label>
+<label>mg/ampola<input name="norepi_mg_ampoule" type="number" value="4"/></label>
+<label>Volume final (mL)<input name="norepi_volume" type="number"/></label>
+<label>Vazão (mL/h)<input name="norepi_rate" step="0.1" type="number"/></label>
+</div>
+<div class="result muted" id="norepiPreview">Sem cálculo.</div>
+</div><div class="dva-card">
+<h3>Adrenalina</h3>
+<div class="grid">
+<label>Ampolas<input name="adren_ampoules" type="number"/></label>
+<label>mg/ampola<input name="adren_mg_ampoule" type="number" value="1"/></label>
+<label>Volume final (mL)<input name="adren_volume" type="number"/></label>
+<label>Vazão (mL/h)<input name="adren_rate" step="0.1" type="number"/></label>
+</div>
+<div class="result muted" id="adrenPreview">Sem cálculo.</div>
+</div>
+<div class="dva-card">
+<h3>Encrise (Vasopressina)</h3>
+<div class="grid">
+<label>Ampolas<input name="vaso_ampoules" type="number"/></label>
+<label>U/ampola<input name="vaso_units_ampoule" type="number" value="20"/></label>
+<label>Volume final (mL)<input name="vaso_volume" type="number"/></label>
+<label>Vazão (mL/h)<input name="vaso_rate" step="0.1" type="number"/></label>
+</div>
+<div class="result muted" id="vasoPreview">Sem cálculo.</div>
+</div>
+<div class="dva-card">
+<h3>Dobutamina</h3>
+<div class="grid">
+<label>Ampolas<input name="dobut_ampoules" type="number"/></label>
+<label>mg/ampola<input name="dobut_mg_ampoule" type="number" value="250"/></label>
+<label>Volume final (mL)<input name="dobut_volume" type="number"/></label>
+<label>Vazão (mL/h)<input name="dobut_rate" step="0.1" type="number"/></label>
+</div>
+<div class="result muted" id="dobutPreview">Sem cálculo.</div>
+</div>
+<div class="dva-card">
+<h3>Nipride (Nitroprussiato de sódio)</h3>
+<div class="grid">
+<label>Ampolas<input name="nipride_ampoules" type="number"/></label>
+<label>mg/ampola<input name="nipride_mg_ampoule" type="number" value="50"/></label>
+<label>Volume final (mL)<input name="nipride_volume" type="number"/></label>
+<label>Vazão (mL/h)<input name="nipride_rate" step="0.1" type="number"/></label>
+</div>
+<div class="result muted" id="nipridePreview">Sem cálculo.</div>
+</div>
+<div class="dva-card">
+<h3>Tridil (Nitroglicerina)</h3>
+<div class="grid">
+<label>Ampolas<input name="tridil_ampoules" type="number"/></label>
+<label>mg/ampola<input name="tridil_mg_ampoule" type="number" value="50"/></label>
+<label>Volume final (mL)<input name="tridil_volume" type="number"/></label>
+<label>Vazão (mL/h)<input name="tridil_rate" step="0.1" type="number"/></label>
+</div>
+<div class="result muted" id="tridilPreview">Sem cálculo.</div>
+</div>
+</div>
+</div></section><section class="panel" id="panel-renal"><div class="panel-step-title">
+<span class="step">5</span>
+<h2>Função Renal</h2>
+</div>
+<div class="renal-layout"><div class="card">
+<div class="grid renal-core-grid">
+<label>DU (mL)<input name="urine_volume" type="number"/></label><label>Período (h)<input name="urine_hours" type="number" value="24"/></label><label>Via<select name="urine_route"><option value=""></option><option value="spontaneous">Espontânea</option><option value="svd">SVD</option></select></label><label>BH (mL)<input name="fluid_balance" type="number"/></label><label>Creatinina basal/anterior<input name="creatinine_prev" step="0.01" type="number"/></label><label>Creatinina atual<input name="creatinine_now" step="0.01" type="number"/></label><label>Ureia anterior<input name="urea_prev" type="number"/></label><label>Ureia atual<input name="urea_now" type="number"/></label></div>
+<div class="result muted" id="renalPreview">Sem dados suficientes.</div>
+</div><div class="card">
+<h2>HGT e Temperatura</h2>
+<div class="two">
+<div>
+<h3>HGT</h3>
+<label>Aferições do dia
+                  <input id="hgtSeries" name="hgt_series" placeholder="Ex: 116-120-130-140" type="text"/>
+</label>
+<div class="result muted" id="hgtSummary">Nenhum HGT informado.</div>
+</div>
+<div>
+<h3>Temperatura</h3>
+<label class="temp-series-label">
+        Aferições do dia / valores extraídos
+        <input id="tempSeries" name="temp_series" placeholder="Ex.: 36,1-36,8-38,2" type="text"/>
+</label><label>Situação
+                  <select id="tempStatus" name="temp_status">
+<option value=""></option>
+<option value="afebrile">Afebril</option>
+<option value="fever">Apresentou febre</option>
+</select>
+</label>
+<div class="grid hidden" id="feverFields" style="margin-top:10px">
+<label>Temperatura máxima (°C)
+                    <input id="feverTemp" name="fever_temp" placeholder="Ex.: 38.5" step="0.1" type="number"/>
+</label>
+<label>Horário da febre
+                    <input id="feverTime" name="fever_time" type="time"/>
+</label>
+</div>
+<div class="result muted" id="tempSummary">Nenhuma informação de temperatura.</div>
+</div>
+</div>
+</div></div>
+</section><section class="panel" id="panel-labs"><div class="panel-step-title">
+<span class="step">6</span>
+<h2>Laboratório</h2>
+</div>
+<div class="labs-layout">
+<div class="card compact-card">
+<h2>Exames laboratoriais</h2>
+<div class="lab-table" id="labTable"></div>
+</div>
+<div class="card compact-card gasometry-card">
+<h2>Gasometria</h2>
+<p class="small-note gasometry-note">Cole aqui o texto gerado pelo módulo Gasometria. Os parâmetros reconhecidos são usados automaticamente pelo minhauti.</p>
+<textarea class="gasometry-text" id="gasometryText" name="gasometry_text" placeholder="Cole aqui a saída gerada pelo aplicativo Gasometria."></textarea>
+<div class="result muted" id="gasometryExtractStatus">Nenhuma gasometria inserida.</div>
+<details class="clinical-details">
+<summary>Ver interpretação utilizada pelo minhauti</summary>
+<div class="result muted" id="abgAssessment">Cole a gasometria para interpretação.</div>
+<div class="result muted" id="cvgAssessment">Sem dados de gasometria venosa central.</div>
+</details>
+</div>
+</div></section><section class="panel" id="panel-care"><div class="panel-step-title"><span class="step">7</span><h2>Sintomas / Profilaxias</h2></div><div class="care-grid"><div class="card"><h2>Sintomas / Queixas</h2><label>Descrição livre<textarea name="free_text" placeholder=""></textarea></label></div><div class="card">
+<h2>Profilaxias</h2>
+<div class="checks">
+<label class="check"><input name="ptev_in_use" type="checkbox"/> Profilaxia para TEV em uso</label>
+<label class="check"><input name="lamg_prophylaxis" type="checkbox"/> Profilaxia para LAMG em uso</label>
+<label class="check"><input name="full_anticoag" type="checkbox"/> Anticoagulação plena</label>
+<label class="check"><input name="active_bleeding" type="checkbox"/> Sangramento ativo</label>
+<label class="check"><input name="high_bleeding_risk" type="checkbox"/> Alto risco hemorrágico/procedimento de alto risco</label>
+</div>
+<div class="result muted" id="ptevAssessment">Preencha os dados para avaliação da profilaxia para TEV.</div>
+</div></div></section><section class="panel" id="panel-checklist"><div class="panel-step-title">
+<span class="step">8</span>
+<h2>Checklist</h2>
+</div>
+<div class="card">
+<button onclick="updateChecklist()" type="button">Atualizar checklist</button>
+<div id="smartChecklist" style="margin-top:12px"></div>
+</div>
+</section><section class="panel" id="panel-evolution"><div class="panel-step-title">
+<span class="step">9</span>
+<h2>Evolução</h2>
+</div>
+<div class="card final-output-card">
+<h2>Sugestão final</h2>
+<textarea class="evolution final-output" id="evolutionText"></textarea>
+</div></section></form>
+</section>
+</main>
+<aside class="tools-sidebar" aria-label="Ferramentas do MinhaUTI">
+  <div class="tools-panel">
+    <div class="tools-panel-title">FERRAMENTAS</div>
+    <nav class="tools-list">
+      <a class="tools-link active" href="/" aria-current="page">
+        <span class="tools-icon">⌂</span>
+        <span class="tools-copy"><span class="tools-name">Minha UTI</span><span class="tools-sub">Evolução e dados do paciente</span></span>
+        <span class="tools-chevron">›</span>
+      </a>
+      <a class="tools-link" href="/gasometria/">
+        <span class="tools-icon">⌁</span>
+        <span class="tools-copy"><span class="tools-name">Gasometria</span><span class="tools-sub">Análise e interpretação</span></span>
+        <span class="tools-chevron">›</span>
+      </a>
+      <a class="tools-link" href="/auxiliar/">
+        <span class="tools-icon">▣</span>
+        <span class="tools-copy"><span class="tools-name">Auxiliar</span><span class="tools-sub">Leitura de dados e resumos</span></span>
+        <span class="tools-chevron">›</span>
+      </a>
+      <a class="tools-link" href="/npt/">
+        <span class="tools-icon">▥</span>
+        <span class="tools-copy"><span class="tools-name">NPT</span><span class="tools-sub">Cálculo e prescrição</span></span>
+        <span class="tools-chevron">›</span>
+      </a>
+      <a class="tools-link" href="/escores/">
+        <span class="tools-icon">▦</span>
+        <span class="tools-copy"><span class="tools-name">Escores</span><span class="tools-sub">Cálculo rápido de escores</span></span>
+        <span class="tools-chevron">›</span>
+      </a>
+      <a class="tools-link" href="/tfg-antibiotico/">
+        <span class="tools-icon">♧</span>
+        <span class="tools-copy"><span class="tools-name">TFG e ajuste Antibiótico</span><span class="tools-sub">Função renal e ajustes</span></span>
+        <span class="tools-chevron">›</span>
+      </a>
+    </nav>
+    <div class="tools-local"><span class="tools-local-dot"></span>Processamento local</div>
+  </div>
+</aside>
+
+</div></div><script src="app.js?v=6.4"></script></body>
+</html>
